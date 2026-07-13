@@ -23,13 +23,13 @@ public class UserService {
         this.userRepository=userRepository;
     }
 
-    public Integer saveUserDetails( UserRequest userRequest) {
+    public UserRequest saveUserDetails( UserRequest userRequest) {
         User user=new User(userRequest.name(),userRequest.email(),userRequest.mobileNumber());
          if(userRepository.findByEmail(userRequest.email()).isPresent()){
              throw new ResourceAlreadyExistsException("User for given email already exists");
          }
              Optional<User> savedUser= Optional.of(userRepository.save(user));
-             return savedUser.get().getId();
+             return new UserRequest(savedUser.get().getName(),savedUser.get().getEmail(),savedUser.get().getMobileNumber());
 
 
     }
@@ -63,12 +63,12 @@ public class UserService {
         }
 
     }
-    public ResponseEntity<List<UserRequest>> getAllUserDetails(){
+    public List<UserRequest> getAllUserDetails(){
        List<UserRequest> userList=userRepository.findAll().stream().map(u-> new UserRequest(u.getName(),u.getEmail(),u.getMobileNumber())).collect(Collectors.toList());
        if(userList.isEmpty()){
            throw new ResourceNotFoundException("Not Users are present");
        }
-       return ResponseEntity.status(HttpStatus.OK).body(userList);
+       return (userList);
 
     }
 }

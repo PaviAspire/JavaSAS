@@ -3,6 +3,9 @@ package com.application.user_service.controller;
 import com.application.user_service.dto.UserRequest;
 import com.application.user_service.service.UserService;
 import jakarta.validation.Valid;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,16 +24,24 @@ public UserController(UserService userService){
 }
 
   @PostMapping(value = "/users",produces = MediaType.APPLICATION_JSON_VALUE,consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> createUser(@Valid @RequestBody UserRequest userRequest){
-         Integer id=userService.saveUserDetails(userRequest);
-         return ResponseEntity.status(HttpStatus.CREATED).body("UserId:"+id);
+    public ResponseEntity<EntityModel<UserRequest>> createUser(@Valid @RequestBody UserRequest userRequest){
+      UserRequest userRequest1=userService.saveUserDetails(userRequest);
+         EntityModel<UserRequest> entityModel=EntityModel.of(userRequest1);
+      entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).createUser(userRequest)).withSelfRel()).add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).findAllUserDetails()).withRel("AllUsers"));
+
+      entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).loadUserByEmail(userRequest1.email())).withRel("GetUserByEmail"));
+
+      return ResponseEntity.status(HttpStatus.CREATED).body(entityModel);
 
   }
 
     @GetMapping(value="/users",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserRequest> loadUserByEmail(@RequestParam String email){
+    public ResponseEntity<EntityModel<UserRequest>> loadUserByEmail(@RequestParam String email){
        UserRequest userRequest=userService.getUserDetails(email);
-        return ResponseEntity.status(HttpStatus.OK).body(userRequest);
+        EntityModel<UserRequest> entityModel=EntityModel.of(userRequest);
+        entityModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).loadUserByEmail(userRequest.email())).withSelfRel()).add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).findAllUserDetails()).withRel("AllUsers"));
+
+        return ResponseEntity.status(HttpStatus.OK).body(entityModel);
 
     }
 
@@ -42,9 +53,14 @@ public UserController(UserService userService){
     }
 
     @GetMapping(value="/usersList",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<UserRequest>> findAllUserDetails(){
+    public ResponseEntity<CollectionModel<EntityModel<UserRequest>>> findAllUserDetails(){
 
-        return userService.getAllUserDetails();
+        List<UserRequest> userRequests=userService.getAllUserDetails();
+        List<EntityModel<UserRequest>> entityModels=userRequests.stream()
+                                     .map(EntityModel::of).toList();
+        CollectionModel<EntityModel<UserRequest>> collectionModel=CollectionModel.of(entityModels);
+        collectionModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).deleteUserByEmail("email")).withRel("DeleteUser"));
+        return ResponseEntity.status(HttpStatus.OK).body(collectionModel);
 
     }
     @DeleteMapping(value="/users",produces = MediaType.APPLICATION_JSON_VALUE)

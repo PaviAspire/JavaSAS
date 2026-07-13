@@ -20,6 +20,8 @@ The project includes the following implementations:
 - Layered Architecture (Controller, Service, Repository)
 - DTO usage
 - Clean and maintainable code structure
+- HATEOAS Integration
+- Swagger Integration
 
 ## Technologies Used
 
@@ -40,7 +42,7 @@ The project includes the following implementations:
 | PUT | `/users`   | Update a user |
 | DELETE | `/users`   | Delete a user |
 
-> Update the endpoints according to your project.
+> http://localhost:8080/swagger-ui/index.html 
 
 ## Content Negotiation
 
@@ -66,3 +68,11 @@ The project includes:
 - Global exception handler using `@RestControllerAdvice`
 - Meaningful error responses
 - Proper HTTP status codes
+
+## HATEOAS 
+
+The purpose of HATEOAS is that the user should be able to navigate through the application just with the help of single response from a api
+
+STEP 1:  Add the Hateoas dependency in the pom file
+STEP 2 : We have to make changes in the controller class alone with the help of EntityModel<DTO> class
+         and WebMvcLinkBuilder and for List of models to return we have use the CollectionModel<EntityModel<DTO>>
