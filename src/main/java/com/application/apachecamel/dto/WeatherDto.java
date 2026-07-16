@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
 @AllArgsConstructor
@@ -18,5 +19,5 @@ public class WeatherDto {
  private String city;
  private String temp;
  private String climate;
- private LocalDateTime registeredTime;
+ private Date registeredTime;
 }

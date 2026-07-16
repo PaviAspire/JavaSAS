@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,8 +15,8 @@ public class WeatherDataProvider {
     private static Map<String,WeatherDto> weatherData=new HashMap<>();
 
     public WeatherDataProvider(){
-        WeatherDto weatherDto=WeatherDto.builder().city("london").temp("40").climate("Hot").registeredTime(LocalDateTime.now()).build();
-        WeatherDto weatherDto1=WeatherDto.builder().city("san-fransisco").temp("10").climate("cool").registeredTime(LocalDateTime.now()).build();
+        WeatherDto weatherDto=WeatherDto.builder().city("london").temp("40").climate("Hot").registeredTime(new Date()).build();
+        WeatherDto weatherDto1=WeatherDto.builder().city("san-fransisco").temp("10").climate("cool").registeredTime(new Date()).build();
         weatherData.put("LONDON",weatherDto);
         weatherData.put("SANFRANSISCO",weatherDto1);
     }
@@ -25,7 +26,7 @@ public class WeatherDataProvider {
  }
 
     public void saveWeatherData(WeatherDto weatherDto) {
-        weatherDto.setRegisteredTime(LocalDateTime.now());
+        weatherDto.setRegisteredTime(new Date());
         weatherData.put(weatherDto.getCity().toUpperCase(),weatherDto);
     }
 }
