@@ -10,6 +10,11 @@ import org.apache.camel.support.DefaultMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
+import static org.apache.camel.Exchange.HTTP_RESPONSE_CODE;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
 @Component
 public class RestJavaDsl extends RouteBuilder {
 
@@ -20,6 +25,7 @@ public class RestJavaDsl extends RouteBuilder {
     public void configure() throws Exception {
         restConfiguration().component("servlet").contextPath("/camel");
       from("rest:get:javadsl/weather/{city}?produces=application/json").outputType(WeatherDto.class).process(this::processWeatherData);
+    //now  we need to save it to save it so refactoring code
     }
 
     public void processWeatherData(Exchange exchange){
@@ -27,9 +33,12 @@ public class RestJavaDsl extends RouteBuilder {
 
         String city=exchange.getMessage().getHeader("city", String.class);
         Message message=new DefaultMessage(exchange.getContext());
-        message.setBody(weatherDataProvider.getWeatherDetails(city));
-        exchange.setMessage(message);
-
-
+        WeatherDto currentWeather=weatherDataProvider.getWeatherDetails(city);
+        if(Objects.nonNull(currentWeather)) {
+            message.setBody(currentWeather);
+            exchange.setMessage(message);
+        }else{
+            exchange.getMessage().setHeader(HTTP_RESPONSE_CODE,NOT_FOUND);
+        }
     }
 }

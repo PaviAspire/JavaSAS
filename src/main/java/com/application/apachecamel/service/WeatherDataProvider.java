@@ -23,4 +23,9 @@ public class WeatherDataProvider {
        return weatherData.get(city.toUpperCase());
 
  }
+
+    public void saveWeatherData(WeatherDto weatherDto) {
+        weatherDto.setRegisteredTime(LocalDateTime.now());
+        weatherData.put(weatherDto.getCity().toUpperCase(),weatherDto);
+    }
 }
