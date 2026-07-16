@@ -1,0 +1,5 @@
+AccessModifiers:
+
+### 1. What access modifiers are available in Python?
+
+**Answer:** Three:
