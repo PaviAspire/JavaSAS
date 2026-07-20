@@ -7,10 +7,12 @@ import org.apache.camel.Message;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.support.DefaultMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConditionalOnProperty(name = "app.enable.route",havingValue ="RestDsl")
 public class RestDsl extends RouteBuilder {
 
     @Autowired
@@ -18,11 +20,15 @@ public class RestDsl extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
-       rest().consumes(MediaType.APPLICATION_JSON_VALUE).produces(MediaType.APPLICATION_JSON_VALUE)
+        onException(NullPointerException.class).maximumRedeliveries(3).maximumRedeliveryDelay(1000)
+                        .useExponentialBackOff().backOffMultiplier(2).handled(true).log("${body}");
+
+
+    rest().consumes(MediaType.APPLICATION_JSON_VALUE).produces(MediaType.APPLICATION_JSON_VALUE)
                .get("/restdsl/weather/{city}").outType(WeatherDto.class).to("direct:getWeatherDetails")
                .post("/restdsl/weather").type(WeatherDto.class).to("direct:saveWeatherDetails");
        from("direct:getWeatherDetails").process(this::processWeatherData);
-       from("direct:saveWeatherDetails").process(this::saveWeatherData);
+      from("direct:saveWeatherDetails").process(this::saveWeatherData);
 
     }
     private void saveWeatherData(Exchange exchange){

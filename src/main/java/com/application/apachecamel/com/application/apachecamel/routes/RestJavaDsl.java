@@ -5,9 +5,9 @@ import com.application.apachecamel.service.WeatherDataProvider;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.model.rest.RestBindingMode;
 import org.apache.camel.support.DefaultMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -16,6 +16,7 @@ import static org.apache.camel.Exchange.HTTP_RESPONSE_CODE;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Component
+@ConditionalOnProperty(name = "app.enable.route",havingValue ="JavaRestDsl")
 public class RestJavaDsl extends RouteBuilder {
 
     @Autowired
